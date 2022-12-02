@@ -14,8 +14,7 @@
             "allowedRoles": ["authenticated"]
         },
         {
-            "route": "/About",
-            "rewrite": "/public/views/AboutView.vue",
+            "route": "/about",
             "allowedRoles": ["authenticated"],
             "headers": {
                 "Cache-Control": "no-store"

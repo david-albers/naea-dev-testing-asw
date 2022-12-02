@@ -1,30 +1,66 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view />
+  <v-app>
+    <v-main>
+      <v-app-bar
+        :collapse="isCollapsed"
+        :collapse-on-scroll="!isCollapsed"
+        :elevation="2"
+      >
+        <v-app-bar-nav-icon @click="toggleCollapse()"></v-app-bar-nav-icon>
+        <v-app-bar-title>{{ message }}</v-app-bar-title>
+      </v-app-bar>
+      <v-navigation-drawer
+        v-model="isCollapsed"
+        :expand-on-hover="false"
+        :width="100"
+        :floating="false"
+        is-collapsed="!isCollapsed"
+        absolute
+        temporary
+      >
+        <v-list nav dense>
+          <v-list-item-group>
+            <v-list-item to="/about">
+              <v-list_item-icon>
+                <v-icon>mdi-home</v-icon>
+              </v-list_item-icon>
+              <v-list-item-title>Home</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-navigation-drawer>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import axios from "axios";
 
-nav {
-  padding: 30px;
+export default {
+  name: "App",
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+  data: () => ({
+    message: "nothing to see yet",
+    isCollapsed: true,
+  }),
+  methods: {
+    toggleCollapse() {
+      this.isCollapsed = !this.isCollapsed;
+    },
+  },
+  async mounted() {
+    axios
+      .get("/api/message?name=Testing")
+      .then((resp) => {
+        console.log(resp.data.text);
+        this.message = resp.data.text;
+      })
+      .catch(() => {
+        this.message = "There was an issue!";
+      });
+    //const { text } = await (await fetch("/api/message?name=George")).json();
+    //this.message = text;
+  },
+};
+</script>

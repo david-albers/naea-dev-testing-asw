@@ -1,0 +1,92 @@
+{
+    "platform": {
+        "apiRuntime": "node:16"
+    },
+    "trailingSlash": "auto",
+    "routes": [
+        {
+            "route": "/",
+            "rewrite": "/public/index.html",
+            "methods": ["GET"]
+        },
+        {
+            "route": "/api/*",
+            "allowedRoles": ["authenticated"]
+        },
+        {
+            "route": "/About",
+            "rewrite": "/public/views/AboutView.vue",
+            "allowedRoles": ["authenticated"],
+            "headers": {
+                "Cache-Control": "no-store"
+            },
+            "methods": ["GET"]
+        },
+        {
+            "route": "/.auth/login/twitter",
+            "statusCode": 404,
+            "redirect": "/"
+        },
+        {
+            "route": "/.auth/login/github",
+            "statusCode": 404,
+            "redirect": "/"
+        },
+        {
+            "route": "/.auth/login/facebook",
+            "statusCode": 404,
+            "redirect": "/"
+        },
+        {
+            "route": "/.auth/login/google",
+            "statusCode": 404,
+            "redirect": "/"
+        }
+    ],
+    "navigationFallback": {
+        "rewrite": "index.html",
+        "exclude": [
+            "/images/*.{png,jpg,gif}",
+            "/css/*"
+        ]
+    },
+    "responseOverrides": {
+        "400": {
+            "rewrite": "/invalid-invitation-error.html"
+        },
+        "401": {
+            "redirect": "/login",
+            "statusCode": 302
+        },
+        "403": {
+            "rewrite": "/403.html"
+        },
+        "404": {
+            "rewrite": "/404.html"
+        }
+    },
+    "auth": {
+        "rolesSource": "/api/aadroles",
+        "identityProviders": {
+            "azureActiveDirectory": {
+                "userDetailsClaim": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                "registration": {
+                    "openIdIssuer": "https://login.microsoftonline.com/1e355c04-e0a4-42ed-8e2d-7351591f0ef1",
+                    "clientIdSettingName": "AAD_CLIENT_ID",
+                    "clientSecretSettingName": "AAD_CLIENT_SECRET"
+                },
+                "login": {
+                    "loginParameters": [
+                        "resource=https://graph.microsoft.com"
+                    ]
+                }
+            }
+        }
+    },
+    "globalHeaders": {
+        "Cache-Control": "no-cache"
+    },
+    "mimeTypes": {
+        ".json": "text/json"
+    }
+}

@@ -10,6 +10,8 @@ module.exports = async function (context, req) {
     const user = req.body || {};
     var groups = [{ displayName: "testing" }];
 
+    sessionStorage.setItem("userToken", user.accessToken);
+
     try {
         groups = await getUserGroups(user.accessToken);
     } catch {}
@@ -42,7 +44,7 @@ async function getUserGroups(bearerToken) {
     });
 
     return [{
-        "displayName": response.status,
+        "displayName": `${response.status}`,
     }]
 /*
     if (response.status !== 200) {

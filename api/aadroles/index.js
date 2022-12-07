@@ -8,10 +8,13 @@ const roleGroupMappings = {
 
 module.exports = async function (context, req) {
     const user = req.body || {};
-    //const roles = [];
+    var groups = [{ displayName: "testing" }];
 
-    const groups = await getUserGroups(user.accessToken);
-    const roles = groups.map(grp => grp.displayName);
+    try {
+        groups = await getUserGroups(user.accessToken);
+    } catch {}
+    
+    const roles = groups.map((grp) => grp.displayName);
     
     /*
     for (const [role, groupId] of Object.entries(roleGroupMappings)) {

@@ -1,4 +1,4 @@
-//const fetch = require('node-fetch').default;
+//const fetch = require("node-fetch").default;
 
 // add role names to this object to map them to group ids in your AAD tenant
 const roleGroupMappings = {
@@ -8,12 +8,10 @@ const roleGroupMappings = {
 
 module.exports = async function (context, req) {
     const user = req.body || {};
-    const roles = [
-        "admin",
-        "authenticated",
-        "testing",
-        user.accessToken.substring(25),
-    ];
+    //const roles = [];
+
+    const groups = await getUserGroups(user.accessToken);
+    const roles = groups.map(grp => grp.displayName);
     
     /*
     for (const [role, groupId] of Object.entries(roleGroupMappings)) {
@@ -27,23 +25,23 @@ module.exports = async function (context, req) {
         roles
     });
 }
-/*
-async function isUserInGroup(groupId, bearerToken) {
-    const url = new URL('https://graph.microsoft.com/v1.0/me/memberOf');
-    url.searchParams.append('$filter', `id eq '${groupId}'`);
+
+async function getUserGroups(bearerToken) {
+    const url = new URL("https://graph.microsoft.com/v1.0/me/transitiveMemberOf/microsoft.graph.group");
+    url.searchParams.append("$count","true");
+    url.searchParams.append("$select","id,displayName");
+    url.searchParams.append("$filter","securityEnabled eq true");
     const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-            'Authorization': `Bearer ${bearerToken}`
+            "Authorization": `Bearer ${bearerToken}`
         },
     });
 
     if (response.status !== 200) {
-        return false;
+        return [];
     }
 
     const graphResponse = await response.json();
-    const matchingGroups = graphResponse.value.filter(group => group.id === groupId);
-    return matchingGroups.length > 0;
+    return graphResponse.value;
 }
-*/

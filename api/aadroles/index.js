@@ -1,4 +1,4 @@
-const fetch = require('node-fetch').default;
+//const fetch = require('node-fetch').default;
 
 // add role names to this object to map them to group ids in your AAD tenant
 const roleGroupMappings = {
@@ -8,19 +8,25 @@ const roleGroupMappings = {
 
 module.exports = async function (context, req) {
     const user = req.body || {};
-    const roles = [];
+    const roles = [
+        "admin",
+        "authenticated",
+        "testing"
+    ];
     
+    /*
     for (const [role, groupId] of Object.entries(roleGroupMappings)) {
         if (await isUserInGroup(groupId, user.accessToken)) {
             roles.push(role);
         }
     }
+    */
 
     context.res.json({
         roles
     });
 }
-
+/*
 async function isUserInGroup(groupId, bearerToken) {
     const url = new URL('https://graph.microsoft.com/v1.0/me/memberOf');
     url.searchParams.append('$filter', `id eq '${groupId}'`);
@@ -39,3 +45,4 @@ async function isUserInGroup(groupId, bearerToken) {
     const matchingGroups = graphResponse.value.filter(group => group.id === groupId);
     return matchingGroups.length > 0;
 }
+*/

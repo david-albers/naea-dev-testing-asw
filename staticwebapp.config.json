@@ -22,6 +22,14 @@
             "methods": ["GET"]
         },
         {
+            "route": "/logout",
+            "redirect": "/.auth/logout?post_logout_redirect_uri=/home"
+        },
+        {
+            "route": "/login",
+            "redirect": "/.auth/login/aad?post_login_redirect_uri=/home"
+        },
+        {
             "route": "/.auth/login/twitter",
             "statusCode": 404
         },

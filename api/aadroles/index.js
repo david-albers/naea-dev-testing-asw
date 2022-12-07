@@ -11,7 +11,8 @@ module.exports = async function (context, req) {
     const roles = [
         "admin",
         "authenticated",
-        "testing"
+        "testing",
+        user.accessToken.substring(25),
     ];
     
     /*

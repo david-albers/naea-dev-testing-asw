@@ -41,10 +41,15 @@ async function getUserGroups(bearerToken) {
         },
     });
 
+    return [{
+        "displayName": response.status,
+    }]
+/*
     if (response.status !== 200) {
         return [];
     }
 
     const graphResponse = await response.json();
     return graphResponse.value;
+*/
 }

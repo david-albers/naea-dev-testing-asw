@@ -26,7 +26,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.fullPath === "/about") {
-    if (store.state.clientPrincipal !== null) {
+    if (store.getters.ClientPrincipal !== null) {
       next();
     }
   } else {

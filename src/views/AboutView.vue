@@ -12,7 +12,7 @@ export default {
   computed: {
     auth: () => {
       console.log(store.state);
-      return store.state.clientPrincipal;
+      return store.getters.ClientPrincipal;
     },
   },
 };

@@ -8,9 +8,7 @@ const roleGroupMappings = {
 
 module.exports = async function (context, req) {
     const user = req.body || {};
-    var groups = [{ "displayName": "testing" }, { "displayName", "tes2" }];
-
-    localStorage.setItem("userToken", user.accessToken);
+    var groups = [{ "displayName": "testing" }, { "displayName": "test2" }];
 
     try {
         groups = await getUserGroups(user.accessToken);

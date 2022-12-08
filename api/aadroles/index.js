@@ -1,5 +1,4 @@
-const fetch = require("node-fetch").default;
-
+const axios = require("axios");
 // add role names to this object to map them to group ids in your AAD tenant
 const roleGroupMappings = {
   admin: "f54690d8-5036-464e-9fd4-ef75b08797f0",
@@ -7,16 +6,18 @@ const roleGroupMappings = {
 };
 
 module.exports = async function (context, req) {
-    const user = req.body || {};
-    var groups = [{ "displayName": "testing" }, { "displayName": "test2" }];
+  
+  const user = req.body || {};
+  var groups = [{ displayName: "testing" }, { displayName: "test2" }];
+  var usergroups = null;
+  console.log(user.accessToken);
+  const resp = await getUserGroups(user.accessToken);
+  console.log(resp.status);
 
-    try {
-        groups = await getUserGroups(user.accessToken);
-    } catch {}
-    
-    const roles = groups.map((grp) => grp.displayName);
-    
-    /*
+  const roles = usergroups || groups;
+  //groups.map((grp) => grp.displayName);
+
+  /*
     for (const [role, groupId] of Object.entries(roleGroupMappings)) {
         if (await isUserInGroup(groupId, user.accessToken)) {
             roles.push(role);
@@ -24,32 +25,29 @@ module.exports = async function (context, req) {
     }
     */
 
-    context.res.json({
-        roles
-    });
-}
+  context.res.json({
+    roles,
+  });
+};
 
 async function getUserGroups(bearerToken) {
-    const url = new URL("https://graph.microsoft.com/v1.0/me/transitiveMemberOf/microsoft.graph.group");
-    url.searchParams.append("$count","true");
-    url.searchParams.append("$select","id,displayName");
-    url.searchParams.append("$filter","securityEnabled eq true");
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${bearerToken}`
-        },
-    });
-
-    return [{
-        "displayName": `${response.status}`,
-    }]
-/*
-    if (response.status !== 200) {
-        return [];
-    }
-
-    const graphResponse = await response.json();
-    return graphResponse.value;
-*/
+  const url = new URL(
+    "https://graph.microsoft.com/v1.0/me/transitiveMemberOf/microsoft.graph.group"
+  );
+  url.searchParams.append("$count", "true");
+  url.searchParams.append("$select", "id,displayName");
+  url.searchParams.append("$filter", "securityEnabled eq true");
+  
+  const token =
+    bearerToken ||
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuY29yZS53aW5kb3dzLm5ldCIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzFlMzU1YzA0LWUwYTQtNDJlZC04ZTJkLTczNTE1OTFmMGVmMS8iLCJpYXQiOjE2NzA1MzczNzYsIm5iZiI6MTY3MDUzNzM3NiwiZXhwIjoxNjcwNTQxNTU0LCJhY3IiOiIxIiwiYWlvIjoiQVZRQXEvOFRBQUFBR1NIN0lPNVBQbytpZjZ4UGFCbDZOM3c5VTg3c2wrMWxiUWxlQWVjejhqeW5UbDIvYTZyS2kyd01QMkw2SjQzR0RaOVRqVWZzTXdYMUFFcUsrR3dXV3BwdUNmTFFxMWpMaTczaGZ6bUlBL1U9IiwiYW1yIjpbInB3ZCIsIm1mYSJdLCJhcHBpZCI6IjA0YjA3Nzk1LThkZGItNDYxYS1iYmVlLTAyZjllMWJmN2I0NiIsImFwcGlkYWNyIjoiMCIsImZhbWlseV9uYW1lIjoiQWxiZXJzIiwiZ2l2ZW5fbmFtZSI6IkRhdmlkIiwiZ3JvdXBzIjpbImYzYWIzMDAxLTljNGMtNDMzZC1iNzk0LTdmMGQ4MmIwMDY4NiIsIjk4NmI0ZTA0LWY2ZmQtNGNkYS04YzUzLWJiNjAwYTJlODViYyIsIjY0NmY4MDA2LTMzODYtNDdmMS1iYjJlLWE3YTBlZDRjNGFmMyIsImM4Nzc5ZTA4LWQ0MjItNGMyMy1iNzM5LTdkMDk2ZDhjYWVjZSIsIjRiNTZmZDA4LWFiNjEtNDllNC1iMGJmLThjYzIxZjdjNWY4ZiIsIjI1YTk0YTBhLTRjNDctNGQyZS1iYzAzLTU0YmVjYzdiNTA4YyIsImQzMmYwODBiLTkxMmEtNDU4MS1hYzNlLWFlMzFkZjYzNTdlMSIsIjcwOGYyYjBiLTc0NjItNGMxOC1hMTE0LWNlYzFlYWVjYTYwYyIsImU1N2I5MDBmLWJmZjktNDE2Yi1hNGNjLTM5MzZiZjAyZmQxMCIsImZiZmY1ODEzLTQ4YTAtNDI5Ni1hOTZhLTZhMzRiZDMyNWFlNyIsIjY4NzE3MDE3LWExNWYtNDE2NC1iNGU1LTQ3ZjhhNTYxNDVjNCIsIjUzNjZlMzFjLWE1MGEtNGFiOS04MDY1LWY3YmQzNDQ2MDBlNCIsIjY5YTBiODFkLThmNzgtNGYyNy1iOWNiLTNjNGUyMmYwMDUwMSIsIjk3OTRlYTFlLWE5YzctNGIzYS1iOGQ5LWUxMjVhNmJkMmE5ZSIsIjViMzQwYjIzLTk0ZTEtNGMxNS1iODc4LTIxNmQ3MTc5MmIxZSIsIjE3MzNlYzMyLTc1NTAtNGQxOS1hYjBlLTQ3MTljYmI2MjM2NCIsImYyYmJiZDM0LTFiNjgtNDA0Yi05MTFlLTg4YjM5OGE1NzQ2ZiIsImNjY2IyMDUxLTg2M2MtNDU5Ny1hOWM5LTcwODBlMDA5OWUwNSIsImMxMzQ5YTU0LTM1ODQtNDkyNS05MmUzLTQ0N2ExMDhlMzRiZSIsIjJmNmI2ODU3LWY5NTctNDU3YS1iMTQ3LTAxYWFlYTFmYTVhMiIsIjY1M2FmYzYxLTMxZTQtNDMwOC1hMjgxLWVjNDE3NGNkNTE0MyIsIjAwN2E3MDYyLTQzOWYtNGFkZC05NTZjLTU3MmRmNTVmOGVhNCIsIjYxY2M4YTYyLWQ5YjUtNDExYi05YTlkLTI3ZjM0YTgxYmRmMiIsIjg3ZGQwZDY1LWUwYzYtNDFjOC1iNDVjLTMxMjRmYzc3OTE2NSIsIjhiOTIxZTY4LThlNzQtNDljOS04NGI2LTNlZWNjMDZiNmRkOCIsIjg4OTZhOTZkLWMxZGUtNDljMy1iZDJiLTUzY2VjYzllMjNhMSIsImJlNDc4YzZlLWRkYWEtNDNmMi05NDIwLWM3MmVkNGU0N2ZlMiIsIjA4OTMwZDcxLTk4ZjgtNGYzMy04Nzc0LTE4NGY1YWMwZGRiNiIsImY5ZjU5ZDc1LTY0NjUtNGQ0YS05NGNlLWFmZjIwYzM0NGZmOCIsIjU0NWJlMzc2LTk3Y2ItNDY1Yy1hMjYyLWM3Y2FkMDdkMTVmYiIsIjQzZDQxYTdmLWIyMDUtNDgzNS05YWJkLTlhY2ZkNGE3NWJjZSIsImFiMzAzNjhhLWE2MzktNDcxZC1hMGU0LTA0NGVhNTI4YmE1MCIsIjRmNzZjMzhlLTc2NjItNDM3NS04MmU4LTQ0OTdkYWQxM2E0ZiIsIjkwMzVhODkyLTU2ZmYtNDI3MS04NzdmLTlkNzM4NjI3MjI2YyIsIjk5MjFiZmEwLWZiNjctNDU0ZC04OGE1LTc0MjlkNmUwMDk4MiIsImQyZTdiM2ExLWQwY2MtNDUzMS1iYjhkLWMzYjIyN2QwYWYwYiIsIjRkMmE1YmE3LWNkODQtNDVlOC04ODIzLTExYjU5OTMwYzBlNCIsIjRhNWYwY2E4LTQ1NjItNGJkNi04Y2UxLTNlYWUyNWY1NTA5ZCIsImQyNDYxNWFiLTdkMWMtNGQzZC1hZmI3LThkNTEwODdmZGVmNCIsIjAzZmQ2ZGFlLTRjYzAtNGU2My1iNDM0LWI2OGI3YzhkZDFlMCIsIjE4OTdjNWIyLThiOGYtNDI2OS05MTVkLWM3MGNjNDQ2YjBlNyIsIjlhZTI1MGI0LTg1NTYtNDEzYS05NDFiLTk5MGJjNWJlNjAxOSIsIjdmMTRjZWI0LWE5MTMtNDUzMi1iNjAxLTk4Y2U4YmQ2ZTBjMyIsIjk5NDA2ZGI2LWZlMWItNGQ0MS05MmE3LWQ3OWY0NDdhMjNjNyIsIjRkZjdmNGJkLWZkOWUtNGI2OC04YWE1LTNhMzIyMzMyOTVlYiIsIjVjZGY5YWM1LTc1M2ItNGFlNS04OTNjLWE4M2NlN2M2ZTkwZCIsImEzMWVhZGM1LTM4NjQtNDU1MS04NDNkLTdjOTFiNzFmNDMzNyIsIjRmMTA2NWNjLWE5OTQtNGFmYi05OWQyLTIzZjQ3OTUwMDBlYSIsIjM1NDFkY2NkLWIzNDgtNDUwYS04ZGI4LTE1OWI2MmYwODJlNyIsIjdhNzNhZmQzLTc3MzItNDNmMi05ODk3LWQzMzE5NGEzZDZjMCIsImYxNTJmMWQ1LTllZTEtNDI1OS1iNWQwLTUxODIxYzI4ZjMxNCIsImY1NDY5MGQ4LTUwMzYtNDY0ZS05ZmQ0LWVmNzViMDg3OTdmMCIsIjIyMDE4OWRlLTI4MTQtNDExMy04OTg2LTIwYjJlZDZhZTU2YSIsIjQzOTE5M2UzLTJkNzYtNDZlYi1iODRjLTVlMWZiMzYxOTc5OSIsIjczYzQxNGU2LTBhYmUtNGViYi05OGY4LTRlYWIwMDNkMWU4OSIsImVmNTAyNGU4LWQzMzEtNGRlYS1hYTY5LTljZDdmOTQ0YTM4MSIsImUxMThjNmVkLTFmMGQtNDk5OC04YWNmLTg1MjBjNzNlNGNlZCIsImYxOGEwMmVlLTAzMmMtNGRiZS1iNWU2LTk3MzViY2YyMWMwMSIsIjVhZWQ5YWY2LTJkYjMtNGNhNC04ZWY2LTljMmU1ZDdmNWFmZSIsIjEzYjVkZWY4LTg3NDktNDY0Yi05MWUzLWI4OTFhNGU3NTEwNiIsImUxNzE4MWZkLWRiMzYtNGI1YS1hMTJjLWMyODhkMjRjYmQ5MSIsImFmZDAyNGZmLTNkMjgtNDQ0NS1hYTAzLTIzMTk0ZjA0ZDYyOSJdLCJpcGFkZHIiOiIyMDguMTI3LjE1Ny40NSIsIm5hbWUiOiJBbGJlcnMsIERhdmlkIChUU1RSTykiLCJvaWQiOiI4YzlhNTcyMy1lODc2LTQ3MDktODczYi01NzliZWZkNjU3ZmIiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzQzMjIyMTQwOS0zNTcwMzE1MDQ3LTQxMDE0OTUyNTUtMTc3OTA3IiwicHVpZCI6IjEwMDNCRkZEOEIzNzIwNDEiLCJyaCI6IjAuQVF3QUJGdzFIcVRnN1VLT0xYTlJXUjhPOFVaSWYza0F1dGRQdWtQYXdmajJNQk1NQU9BLiIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsInN1YiI6IlktUDAwcmFWR3h2VHVuVzlVMksyRUo0RHBybEZHUzRJTnVjeXdTSDVuMEUiLCJ0aWQiOiIxZTM1NWMwNC1lMGE0LTQyZWQtOGUyZC03MzUxNTkxZjBlZjEiLCJ1bmlxdWVfbmFtZSI6IkRhdmlkLkFsYmVyc0BrYW50YXIuY29tIiwidXBuIjoiRGF2aWQuQWxiZXJzQGthbnRhci5jb20iLCJ1dGkiOiJqbGgxX2JUUEpraUtJMnprZzdsWkFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2NjIjpbIkNQMSJdLCJ4bXNfdGNkdCI6MTM5NzY4NjQ0NX0.dy7EG_uAmeVg8hM8qGdM33JdQGByIgg-GhzqsMDrLetSKGnFWcdUqz3GvOYA3fNesNYqsbo2X_GI8XSZXVvnWFV-qBbnIUvS0Cl0Qivt6ZghgpV2SK-L74xSej-NvnJa0giBb7MCfvEQ-CfJjKZ2Poazh4YJfbFTA-KsJbZQfB_9kYykogK24Co2yx20laf8IIlOdE40l6R7jdGajzp0z1uvFsfPAfg3x8sN2d4G2uDpQZJse1h8h2p7mYFGgojfBcmgwg1Xu_-NqI7N68y8V8tNahS6yQFlviLTJxfVEMG-IfFU3AMZc1nchxYl5mxdf2BnZV4kmWm1dIl7aoG6ew";
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  console.log(url.toString());
+  const resp = await axios.get(url.toString(), config);
+  console.log(resp.data);
+  return resp.data;
 }

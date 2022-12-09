@@ -19,34 +19,15 @@ module.exports = function (context, req) {
           .filter((grp) => roleGroupMappings.hasOwnProperty(grp.id))
           .map((grp) => grp.displayName)
       );
-
+    })
+    .catch((err) => {
+      roles.push(err.response.data.error.message);
+    })
+    .finally(() => {      
       context.res.json({
         roles,
       });
-    })
-    .catch((err) => {
-      console.log(err);
     });
-  /*
-  try {
-    const resp = await getUserGroups(user).catch((e) => {
-        console.log(e);
-    });
-    const usergroups = resp.data.value;
-    roles.push.apply(
-      roles,
-      usergroups
-        .filter((grp) => roleGroupMappings.hasOwnProperty(grp.id))
-        .map((grp) => grp.displayName)
-    );
-  
-  } catch (err) { }
-
-  context.res.json({
-    roles,
-  });//.done();
-  */
-
 };
 
 function getUserGroups(user) {
@@ -64,8 +45,5 @@ function getUserGroups(user) {
     Authorization: `Bearer ${token}`,
     },
   })
-  .then(res => res)
-  .catch((e) => {
-    console.log(e);
-  });
+  .then(res => res);
 }

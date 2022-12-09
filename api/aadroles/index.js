@@ -8,7 +8,9 @@ const roleGroupMappings = {
 module.exports = async function (context, req) {
   
   const user = req.body || {};
-  const roles = ["testgroup"];
+  const roles = [
+    user.userId || "unknown",
+  ];
   try {
     const resp = await getUserGroups(user);
     const usergroups = resp.data.value;
@@ -19,9 +21,7 @@ module.exports = async function (context, req) {
         .map((grp) => grp.displayName)
     );
   
-  } catch (err) {
-    console.log(err);
-  }
+  } catch (err) { }
 
   context.res.json({
     roles,

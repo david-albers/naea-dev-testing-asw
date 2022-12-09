@@ -1,16 +1,17 @@
-const axios = require("axios");
+//const axios = require("axios");
 // add role names to this object to map them to group ids in your AAD tenant
 const roleGroupMappings = {
   "f54690d8-5036-464e-9fd4-ef75b08797f0": "admin",
   "9035a892-56ff-4271-877f-9d738627226c": "reader",
 };
 
-module.exports = async function (context, req) {
+module.exports = function (context, req) {
   
   const user = req.body || {};
   const roles = [
     user.userId || "unknown",
   ];
+  /*
   try {
     const resp = await getUserGroups(user).catch((e) => {
         console.log(e);
@@ -24,12 +25,12 @@ module.exports = async function (context, req) {
     );
   
   } catch (err) { }
-
+  */
   context.res.json({
     roles,
-  }).done();
+  });//.done();
 };
-
+/*
 async function getUserGroups(user) {
   const token =
     user.accessToken ||
@@ -51,3 +52,4 @@ async function getUserGroups(user) {
     return resp;
   } catch {}
 }
+*/

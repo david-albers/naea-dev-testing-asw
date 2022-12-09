@@ -1,3 +1,5 @@
+const { Exception } = require("sass");
+
 module.exports = function (context, req) {
   const roleGroupMappings = {
     "f54690d8-5036-464e-9fd4-ef75b08797f0": "admin",
@@ -27,7 +29,8 @@ module.exports = function (context, req) {
             roles,
         });
       });
-  } catch {
+  } catch (err) {
+    roles.push(err)
     context.res.json({
       roles,
     });

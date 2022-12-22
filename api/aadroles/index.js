@@ -8,10 +8,12 @@ module.exports = function (context, req) {
 
   const user = req.body || {};
   const roles = [user.userId || "unknown"];
+  /*
   roles.push.apply(
     roles,
     user.claims.map(clm => clm.val)
   );
+  */
   context.res.json({
     roles,
   });

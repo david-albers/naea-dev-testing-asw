@@ -14,27 +14,20 @@ export default {
   }),
   computed: {
     cardtext: () => {
-      //var v = store.state.dispatch("fetchClientPrincipal");
-      console.log(store.getters.ClientPrincipal);
-      //console.log(v);
-      var cp = store.getters.ClientPrincipal;
-      if (cp !== null) {
-        var claims = cp.claims;
-        if (claims != undefined) {
-          return claims
-            .filter((f) => f.type == "roles")
-            .map((r) => r.val)
-            .join(", ");
-        } else {
-          return "No claims available!";
-        }
+      console.log(store.getters.Claims);
+      var claims = store.getters.Claims;
+      if (claims != undefined) {
+        return claims
+          .filter((c) => c.typ == "roles")
+          .map((r) => r.val)
+          .join(", ");
       } else {
-        return "Not logged in!";
+        return "No claims available!";
       }
     },
   },
   async mounted() {
-    console.log(store.getters.ClientPrincipal);
+    //console.log(store.getters.ClientPrincipal);
   },
 };
 </script>

@@ -9,6 +9,46 @@ export default createStore({
     ClientPrincipal(state) {
       return state.clientPrincipal;
     },
+    UserClaims(state) {
+      var cp = state.clientPrincipal;
+      if (cp !== null) {
+        return cp.claims;
+      } else {
+        return [];
+      }
+    },
+    UserEmail(state) {
+      var claims = state.Claims;
+      if (claims.length > 0) {
+        return claims.filter((c) => c.typ.endsWith("emailaddress")[0].val);
+      } else {
+        return "Not logged in.";
+      }
+    },
+    UserName(state) {
+      var claims = state.Claims;
+      if (claims.length > 0) {
+        return claims.filter((c) => c.typ === "name")[0].val;
+      } else {
+        return "Not logged in.";
+      }
+    },
+    GivenName(state) {
+      var claims = state.Claims;
+      if (claims.length > 0) {
+        return claims.filter((c) => c.typ.endsWith("claims/givenname")[0].val);
+      } else {
+        return "Not logged in.";
+      }
+    },
+    SurName(state) {
+      var claims = state.Claims;
+      if (claims.length > 0) {
+        return claims.filter((c) => c.typ.endsWith("claims/surname")[0].val);
+      } else {
+        return "Not logged in.";
+      }
+    },
   },
   mutations: {
     loggedIn: (state) => (state.clientPrincipal == null ? false : true),

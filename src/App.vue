@@ -83,8 +83,9 @@ export default {
     console.log(clientPrincipal);
     this.$store.dispatch("login", clientPrincipal);
     this.$store.commit("loggedIn");
+    var username = this.$store.getters.UserName || clientPrincipal.userDetails;
     axios
-      .get("/api/message?name=" + clientPrincipal.userDetails)
+      .get("/api/message?name=" + username)
       .then((resp) => {
         console.log(resp.data.text);
         this.message = resp.data.text;

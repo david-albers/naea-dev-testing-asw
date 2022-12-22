@@ -15,9 +15,6 @@ export default createStore({
     updateClientPrincipal: (state, clientPrincipal) => {
       state.clientPrincipal = clientPrincipal;
     },
-    logout: (state) => {
-      state.clientPrincipal = null;
-    },
   },
   actions: {
     login({ commit }, clientPrincipal) {

@@ -84,7 +84,7 @@ export default {
     this.$store.dispatch("login", clientPrincipal);
     this.$store.commit("loggedIn");
     axios
-      .get("/api/message?name=George")
+      .get("/api/message?name=" + clientPrincipal.userDetails)
       .then((resp) => {
         console.log(resp.data.text);
         this.message = resp.data.text;
@@ -95,8 +95,6 @@ export default {
         }
         this.message = error.response.data;
       });
-    //const { text } = await (await fetch("/api/message?name=George")).json();
-    //this.message = text;
   },
 };
 </script>

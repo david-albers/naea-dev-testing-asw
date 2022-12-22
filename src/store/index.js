@@ -9,16 +9,22 @@ export default createStore({
     ClientPrincipal(state) {
       return state.clientPrincipal;
     },
-    UserClaims(state) {
+  },
+  mutations: {
+    loggedIn: (state) => (state.clientPrincipal == null ? false : true),
+    updateClientPrincipal: (state, clientPrincipal) => {
+      state.clientPrincipal = clientPrincipal;
+    },
+    UserClaims: (state) => {
       var cp = state.clientPrincipal;
       if (cp !== null) {
-        return cp.claims;
+        return cp.claims || ["testing"];
       } else {
-        return [];
+        return ["junky"];
       }
     },
-    UserEmail(state) {
-      var claims = state.Claims;
+    UserEmail: (state) => {
+      var claims = state.UserClaims;
       if (claims.length > 0) {
         return claims.filter((c) => c.typ.endsWith("emailaddress")[0].val);
       } else {
@@ -26,7 +32,7 @@ export default createStore({
       }
     },
     UserName(state) {
-      var claims = state.Claims;
+      var claims = state.UserClaims;
       if (claims.length > 0) {
         return claims.filter((c) => c.typ === "name")[0].val;
       } else {
@@ -34,7 +40,7 @@ export default createStore({
       }
     },
     GivenName(state) {
-      var claims = state.Claims;
+      var claims = state.UserClaims;
       if (claims.length > 0) {
         return claims.filter((c) => c.typ.endsWith("claims/givenname")[0].val);
       } else {
@@ -42,18 +48,12 @@ export default createStore({
       }
     },
     SurName(state) {
-      var claims = state.Claims;
+      var claims = state.UserClaims;
       if (claims.length > 0) {
         return claims.filter((c) => c.typ.endsWith("claims/surname")[0].val);
       } else {
         return "Not logged in.";
       }
-    },
-  },
-  mutations: {
-    loggedIn: (state) => (state.clientPrincipal == null ? false : true),
-    updateClientPrincipal: (state, clientPrincipal) => {
-      state.clientPrincipal = clientPrincipal;
     },
   },
   actions: {

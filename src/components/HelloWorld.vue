@@ -14,15 +14,22 @@ export default {
   }),
   computed: {
     cardtext: () => {
-      console.log(store.getters.Claims);
-      var claims = store.getters.Claims;
-      if (claims != undefined) {
-        return claims
-          .filter((c) => c.typ == "roles")
-          .map((r) => r.val)
-          .join(", ");
+      if (store.getters.ClientPrincipal !== null) {
+        var claims = store.UserClaims;
+        if (claims) {
+          if (claims.length == 0) {
+            return [store.getters.ClientPrincipal.userDetail];
+          } else {
+            return claims
+              .filter((c) => c.typ == "roles")
+              .map((r) => r.val)
+              .join(", ");
+          }
+        } else {
+          return "No claims available!";
+        }
       } else {
-        return "No claims available!";
+        return "Please login to see details";
       }
     },
   },

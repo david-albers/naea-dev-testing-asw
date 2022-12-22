@@ -61,6 +61,7 @@ export default {
     loggedIn() {
       let cp = this.$store.getters.ClientPrincipal;
       let loggedIn = cp != null;
+      console.log(this.$store.loggedIn);
       console.log(
         `User ${JSON.stringify(
           cp == null ? "Not logged in!" : cp.userDetails

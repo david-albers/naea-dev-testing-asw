@@ -1,6 +1,6 @@
 module.exports = async function (context, req) {
   context.log("JavaScript HTTP trigger function processed a request.");
-
+/*
   var user = axios({
     url: `/.auth/me`
   }).then((res) => res);
@@ -13,9 +13,9 @@ module.exports = async function (context, req) {
       Authorization: req.headers.authorization,
     },
   }).then((res) => res);
-
+*/
   context.res = {
     // status: 200, /* Defaults to 200 */
-    body: JSON.stringify(groups),
+    body: JSON.stringify(context.req),
   };
 };

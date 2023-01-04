@@ -15,6 +15,7 @@ export default {
   computed: {
     cardtext: () => {
       if (store.getters.ClientPrincipal !== null) {
+        console.log(store.state.UserClaims);
         var claims = store.UserClaims;
         if (claims) {
           if (claims.length == 0) {
